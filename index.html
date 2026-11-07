@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Geek Elite Trading - Formation Trading</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="header-title">
+                <div class="header-icon">📈</div>
+                <div>
+                    <h1 class="main-title">Geek Elite Trading</h1>
+                    <p class="subtitle">Geek Elite Trading • Formation Professionnelle en Trading</p>
+                </div>
+            </div>
+            <p class="progress-text">
+                Progression: <span id="completed-count">0</span> / <span id="total-count">7</span> modules complétés
+            </p>
+        </div>
+    </header>
+
+    <!-- Lecteur Vidéo -->
+    <div id="video-player" class="video-player-section" style="display: none;">
+        <div class="container">
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <video id="current-video" controls controlsList="nodownload" oncontextmenu="return false;">
+                        Votre navigateur ne supporte pas la lecture vidéo.
+                    </video>
+                </div>
+                
+                <div class="video-info">
+                    <div class="video-details">
+                        <h2 id="video-title" class="video-title"></h2>
+                        <p id="video-description" class="video-description"></p>
+                    </div>
+                    <button id="fullscreen-btn" class="fullscreen-btn">
+                        <span class="icon">⛶</span>
+                        <span class="btn-text">Plein écran</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des Vidéos -->
+    <div class="main-content">
+        <div class="container">
+            <h2 class="section-title">📊 Programme de Formation</h2>
+            
+            <div class="video-grid" id="video-grid">
+                <!-- Les vidéos seront générées par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <p class="footer-title">© 2026 Geek Elite Trading. Tous droits réservés.</p>
+            <p class="footer-warning">⚠️ Le trading comporte des risques. Ne tradez qu'avec de l'argent que vous pouvez vous permettre de perdre.</p>
+        </div>
+    </footer>
+
+    <script src="vendor/hls.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
