@@ -26,14 +26,14 @@ const videos = [
         title: "Module 3 - Stratégies de Trading",
         description: "Day trading, swing trading et stratégies gagnantes",
         thumbnail: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=800&h=450&fit=crop",
-        url: ""
+        url: "media/video4/index.m3u8"
     },
     {
         id: 4,
         title: "Module 4 - Psychologie du Trader",
         description: "Maîtriser vos émotions et développer une mentalité gagnante",
         thumbnail: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=450&fit=crop",
-        url: ""
+        url: "media/video5/index.m3u8"
     },
     {
         id: 5,
