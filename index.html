@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#064e3b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Geek Elite">
     <title>Geek Elite Trading - Formation Trading</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -21,6 +28,11 @@
             <p class="progress-text">
                 Progression: <span id="completed-count">0</span> / <span id="total-count">7</span> modules complétés
             </p>
+            <button id="install-btn" class="install-btn" type="button" hidden>
+                <span aria-hidden="true">＋</span>
+                <span>Ajouter à l'écran d'accueil</span>
+            </button>
+            <p id="install-help" class="install-help" hidden></p>
         </div>
     </header>
 

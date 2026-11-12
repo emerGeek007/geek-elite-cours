@@ -64,6 +64,41 @@ body {
     margin-top: 0.25rem;
 }
 
+.install-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: #10b981;
+    color: #042f2e;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.install-btn:hover {
+    background: #34d399;
+}
+
+.install-btn[hidden] {
+    display: none;
+}
+
+.install-help {
+    margin-top: 0.6rem;
+    max-width: 36rem;
+    color: #d1fae5;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.install-help[hidden] {
+    display: none;
+}
+
 /* Lecteur Vidéo */
 .video-player-section {
     background: #000;
