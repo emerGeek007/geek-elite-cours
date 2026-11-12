@@ -150,7 +150,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         return;
     }
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=2').catch(() => {});
 }
 
 // Charger la progression depuis localStorage
