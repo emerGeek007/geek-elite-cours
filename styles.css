@@ -87,18 +87,6 @@ body {
     display: none;
 }
 
-.install-help {
-    margin-top: 0.6rem;
-    max-width: 36rem;
-    color: #d1fae5;
-    font-size: 0.875rem;
-    line-height: 1.4;
-}
-
-.install-help[hidden] {
-    display: none;
-}
-
 /* Lecteur Vidéo */
 .video-player-section {
     background: #000;

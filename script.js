@@ -101,48 +101,62 @@ function isAppInstalled() {
 
 function hideInstallButton() {
     const installBtn = document.getElementById('install-btn');
-    const installHelp = document.getElementById('install-help');
     if (installBtn) {
         installBtn.hidden = true;
     }
-    if (installHelp) {
-        installHelp.hidden = true;
-    }
 }
 
-function installInstructions() {
+function isIosDevice() {
     const ua = navigator.userAgent || '';
-    if (/iphone|ipad|ipod/i.test(ua)) {
-        return 'Sur iPhone ou iPad : touchez Partager, puis « Sur l’écran d’accueil ».';
+    return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+async function requestInstall() {
+    if (typeof navigator.install === 'function') {
+        try {
+            await navigator.install();
+            hideInstallButton();
+            return;
+        } catch (error) {
+            if (!error || error.name === 'AbortError') {
+                return;
+            }
+        }
     }
-    if (/android/i.test(ua)) {
-        return 'Sur Android : ouvrez le menu du navigateur, puis « Ajouter à l’écran d’accueil » ou « Installer l’application ».';
+
+    if (deferredInstallPrompt) {
+        const promptEvent = deferredInstallPrompt;
+        deferredInstallPrompt = null;
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice.outcome === 'accepted') {
+            hideInstallButton();
+        }
+        return;
     }
-    return 'Dans le menu du navigateur, choisissez « Installer Geek Elite Trading » ou « Ajouter à l’écran d’accueil ».';
+
+    if (isIosDevice() && typeof navigator.share === 'function') {
+        try {
+            await navigator.share({
+                title: 'Geek Elite Trading',
+                url: window.location.href
+            });
+        } catch (error) {
+            // La fenêtre système a été fermée.
+        }
+    }
 }
 
 function setupInstallButton() {
     const installBtn = document.getElementById('install-btn');
-    const installHelp = document.getElementById('install-help');
     if (!installBtn || isAppInstalled()) {
         hideInstallButton();
         return;
     }
 
     installBtn.hidden = false;
-    installBtn.addEventListener('click', async () => {
-        if (deferredInstallPrompt) {
-            deferredInstallPrompt.prompt();
-            const choice = await deferredInstallPrompt.userChoice;
-            deferredInstallPrompt = null;
-            if (choice.outcome === 'accepted') {
-                hideInstallButton();
-            }
-            return;
-        }
-
-        installHelp.textContent = installInstructions();
-        installHelp.hidden = false;
+    installBtn.addEventListener('click', () => {
+        requestInstall();
     });
 }
 
@@ -150,7 +164,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         return;
     }
-    navigator.serviceWorker.register('sw.js?v=2').catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=3').catch(() => {});
 }
 
 // Charger la progression depuis localStorage
