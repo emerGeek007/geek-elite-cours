@@ -57,19 +57,21 @@ let completedVideos = [];
 let currentVideo = null;
 let hlsPlayer = null;
 let deferredInstallPrompt = null;
+const installConfig = {
+    delayMs: 4000,
+    dismissDays: 7,
+    dismissKey: 'pwaInstallDismissedUntil'
+};
 
 window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.hidden = false;
-    }
 });
 
 window.addEventListener('appinstalled', () => {
     deferredInstallPrompt = null;
-    hideInstallButton();
+    hideInstallBanner();
+    closeIosInstall();
 });
 
 // Éléments DOM
@@ -99,23 +101,95 @@ function isAppInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
-function hideInstallButton() {
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.hidden = true;
+function isIosDevice() {
+    const ua = navigator.userAgent || '';
+    const isAppleMobile = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return isAppleMobile;
+}
+
+function isIosSafari() {
+    const ua = navigator.userAgent || '';
+    return isIosDevice() && /safari/i.test(ua) && !/crios|fxios|edgios|opr\//i.test(ua);
+}
+
+function readStorage(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (error) {
+        return null;
     }
 }
 
-function isIosDevice() {
-    const ua = navigator.userAgent || '';
-    return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function writeStorage(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (error) {
+        // Le site reste utilisable si le stockage est bloqué.
+    }
+}
+
+function installWasDismissed() {
+    const until = Number(readStorage(installConfig.dismissKey));
+    return Number.isFinite(until) && until > Date.now();
+}
+
+function hideInstallBanner() {
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.hidden = true;
+    }
+}
+
+function dismissInstallBanner() {
+    const until = Date.now() + installConfig.dismissDays * 24 * 60 * 60 * 1000;
+    writeStorage(installConfig.dismissKey, String(until));
+    hideInstallBanner();
+}
+
+function closeIosInstall() {
+    const dialog = document.getElementById('install-ios');
+    if (dialog) {
+        dialog.hidden = true;
+    }
+}
+
+function openIosInstall() {
+    const dialog = document.getElementById('install-ios');
+    const steps = document.getElementById('install-ios-steps');
+    const closeButton = document.getElementById('install-ios-close');
+    if (!dialog || !steps) {
+        return;
+    }
+
+    const items = isIosSafari()
+        ? [
+            'Touchez le bouton Partager de Safari.',
+            'Choisissez « Sur l’écran d’accueil ».',
+            'Confirmez avec « Ajouter ».'
+        ]
+        : [
+            'Ouvrez cette page dans Safari.',
+            'Touchez le bouton Partager.',
+            'Choisissez « Sur l’écran d’accueil », puis « Ajouter ».'
+        ];
+
+    steps.replaceChildren();
+    items.forEach((text) => {
+        const item = document.createElement('li');
+        item.textContent = text;
+        steps.appendChild(item);
+    });
+    dialog.hidden = false;
+    if (closeButton) {
+        closeButton.focus();
+    }
 }
 
 async function requestInstall() {
     if (typeof navigator.install === 'function') {
         try {
             await navigator.install();
-            hideInstallButton();
+            hideInstallBanner();
             return;
         } catch (error) {
             if (!error || error.name === 'AbortError') {
@@ -127,36 +201,65 @@ async function requestInstall() {
     if (deferredInstallPrompt) {
         const promptEvent = deferredInstallPrompt;
         deferredInstallPrompt = null;
-        await promptEvent.prompt();
-        const choice = await promptEvent.userChoice;
-        if (choice.outcome === 'accepted') {
-            hideInstallButton();
+        try {
+            await promptEvent.prompt();
+            const choice = await promptEvent.userChoice;
+            if (choice.outcome === 'accepted') {
+                hideInstallBanner();
+            }
+        } catch (error) {
+            deferredInstallPrompt = promptEvent;
         }
         return;
     }
 
-    if (isIosDevice() && typeof navigator.share === 'function') {
-        try {
-            await navigator.share({
-                title: 'Geek Elite Trading',
-                url: window.location.href
-            });
-        } catch (error) {
-            // La fenêtre système a été fermée.
-        }
+    if (isIosDevice()) {
+        openIosInstall();
     }
 }
 
 function setupInstallButton() {
+    const banner = document.getElementById('install-banner');
     const installBtn = document.getElementById('install-btn');
-    if (!installBtn || isAppInstalled()) {
-        hideInstallButton();
+    const dismissBtn = document.getElementById('install-dismiss');
+    const iosClose = document.getElementById('install-ios-close');
+    const iosDialog = document.getElementById('install-ios');
+
+    if (!banner || !installBtn || isAppInstalled() || installWasDismissed()) {
+        hideInstallBanner();
         return;
     }
 
-    installBtn.hidden = false;
+    window.setTimeout(() => {
+        if (!isAppInstalled() && !installWasDismissed()) {
+            banner.hidden = false;
+        }
+    }, installConfig.delayMs);
+
     installBtn.addEventListener('click', () => {
         requestInstall();
+    });
+
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', dismissInstallBanner);
+    }
+
+    if (iosClose) {
+        iosClose.addEventListener('click', closeIosInstall);
+    }
+
+    if (iosDialog) {
+        iosDialog.addEventListener('click', (event) => {
+            if (event.target === iosDialog) {
+                closeIosInstall();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeIosInstall();
+        }
     });
 }
 
@@ -164,7 +267,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         return;
     }
-    navigator.serviceWorker.register('sw.js?v=3').catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=4').catch(() => {});
 }
 
 // Charger la progression depuis localStorage

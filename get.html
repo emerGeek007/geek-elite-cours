@@ -12,7 +12,7 @@
     <title>Geek Elite Trading - Formation Trading</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
     <!-- Header -->
@@ -28,12 +28,35 @@
             <p class="progress-text">
                 Progression: <span id="completed-count">0</span> / <span id="total-count">7</span> modules complétés
             </p>
-            <button id="install-btn" class="install-btn" type="button" hidden>
-                <span aria-hidden="true">＋</span>
-                <span>Ajouter à l'écran d'accueil</span>
-            </button>
         </div>
     </header>
+
+    <div class="container">
+        <section id="install-banner" class="install-banner" hidden>
+            <div class="install-banner-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="7" y="2.5" width="10" height="19" rx="2"></rect>
+                    <path d="M11 18.5h2"></path>
+                </svg>
+            </div>
+            <div class="install-banner-copy">
+                <p class="install-banner-title">Installer notre application</p>
+                <p class="install-banner-text">Accédez rapidement depuis votre écran d'accueil.</p>
+            </div>
+            <div class="install-banner-actions">
+                <button id="install-btn" class="install-banner-action" type="button">Installer</button>
+                <button id="install-dismiss" class="install-banner-close" type="button" aria-label="Fermer">×</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="install-ios" class="install-ios" hidden>
+        <div class="install-ios-card" role="dialog" aria-modal="true" aria-labelledby="install-ios-title">
+            <h2 id="install-ios-title">Ajouter à l'écran d'accueil</h2>
+            <ol id="install-ios-steps" class="install-ios-steps"></ol>
+            <button id="install-ios-close" class="install-banner-action" type="button">Fermer</button>
+        </div>
+    </div>
 
     <!-- Lecteur Vidéo -->
     <div id="video-player" class="video-player-section" style="display: none;">
@@ -79,6 +102,6 @@
     </footer>
 
     <script src="vendor/hls.min.js"></script>
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
