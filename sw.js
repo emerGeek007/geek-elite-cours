@@ -1,4 +1,4 @@
-const CACHE = 'geek-elite-shell-v3';
+const CACHE = 'geek-elite-shell-v4';
 const SHELL = [
     './',
     './index.html',
@@ -23,6 +23,15 @@ self.addEventListener('activate', (event) => {
         caches.keys()
             .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
             .then(() => self.clients.claim())
+            .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+            .then((clients) => Promise.all(clients.map((client) => {
+                const next = new URL(client.url);
+                if (next.searchParams.get('acces') === 'nouveau') {
+                    return null;
+                }
+                next.searchParams.set('acces', 'nouveau');
+                return client.navigate(next.toString());
+            })))
     );
 });
 

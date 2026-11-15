@@ -13,7 +13,18 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icons/logo-mark.png?v=2">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
+    <style>
+        html:not(.is-authenticated) .app-shell { display: none !important; }
+    </style>
+    <script>
+        try {
+            localStorage.removeItem('geekEliteSession');
+            localStorage.removeItem('unlockedVideos');
+            localStorage.removeItem('completedVideos');
+            sessionStorage.removeItem('geekEliteSession');
+        } catch (error) {}
+    </script>
 </head>
 <body>
     <section id="login-screen" class="login-screen">
@@ -32,6 +43,7 @@
         </form>
     </section>
 
+    <div class="app-shell">
     <!-- Header -->
     <header class="header">
         <div class="container header-content">
@@ -120,9 +132,10 @@
             <p class="footer-warning">⚠️ Le trading comporte des risques. Ne tradez qu'avec de l'argent que vous pouvez vous permettre de perdre.</p>
         </div>
     </footer>
+    </div>
 
     <script src="vendor/hls.min.js"></script>
     <script src="auth.js?v=1"></script>
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>

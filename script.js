@@ -88,8 +88,20 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const completedCount = document.getElementById('completed-count');
 const totalCount = document.getElementById('total-count');
 
+function cutOldAccess() {
+    try {
+        localStorage.removeItem('geekEliteSession');
+        localStorage.removeItem('unlockedVideos');
+        localStorage.removeItem('completedVideos');
+        sessionStorage.removeItem('geekEliteSession');
+    } catch (error) {
+        // Le cours reste fermé si le stockage est bloqué.
+    }
+}
+
 function enterCourse(username) {
     currentUser = username;
+    document.documentElement.classList.add('is-authenticated');
     document.body.classList.add('is-authenticated');
     const name = document.getElementById('current-user');
     if (name) {
@@ -116,52 +128,16 @@ function showLoginError(message) {
     error.hidden = !message;
 }
 
-async function createSession(username) {
-    const account = GeekAuth.findAccount(username);
-    const expires = Date.now() + 30 * 24 * 60 * 60 * 1000;
-    const material = new TextEncoder().encode(`${username}.${expires}.${account.hash}`);
-    const digest = await crypto.subtle.digest('SHA-256', material);
-    const check = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('').slice(0, 32);
-    writeStorage('geekEliteSession', JSON.stringify({ username, expires, check }));
-}
-
-async function readSession() {
-    const raw = readStorage('geekEliteSession');
-    if (!raw) {
-        return null;
-    }
-    try {
-        const session = JSON.parse(raw);
-        const account = GeekAuth.findAccount(session.username);
-        if (!account || !session.expires || session.expires < Date.now()) {
-            return null;
-        }
-        const material = new TextEncoder().encode(`${session.username}.${session.expires}.${account.hash}`);
-        const digest = await crypto.subtle.digest('SHA-256', material);
-        const check = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('').slice(0, 32);
-        if (check !== session.check) {
-            return null;
-        }
-        return session;
-    } catch (error) {
-        return null;
-    }
-}
-
 function leaveCourse() {
     currentUser = null;
-    writeStorage('geekEliteSession', '');
-    try {
-        localStorage.removeItem('geekEliteSession');
-    } catch (error) {
-        // Rien à faire si le stockage est déjà vide.
-    }
+    cutOldAccess();
     if (currentVideoElement) {
         currentVideoElement.pause();
     }
     if (videoPlayerSection) {
         videoPlayerSection.style.display = 'none';
     }
+    document.documentElement.classList.remove('is-authenticated');
     document.body.classList.remove('is-authenticated');
     const password = document.getElementById('login-password');
     if (password) {
@@ -213,7 +189,6 @@ function setupLogin() {
         loginFailures = 0;
         document.getElementById('login-password').value = '';
         showLoginError('');
-        await createSession(accepted);
         enterCourse(accepted);
     });
 }
@@ -388,7 +363,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         return;
     }
-    navigator.serviceWorker.register('sw.js?v=5').catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=6').catch(() => {});
 }
 
 // Charger la progression depuis localStorage
@@ -470,7 +445,7 @@ function renderVideoGrid() {
 
 // Lire une vidéo
 function playVideo(video) {
-    if (!video.url) {
+    if (!currentUser || !video.url) {
         return;
     }
 
@@ -566,10 +541,8 @@ function setupEventListeners() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+    cutOldAccess();
     setupLogin();
-    const session = await readSession();
-    if (session) {
-        enterCourse(session.username);
-    }
+    registerServiceWorker();
 });

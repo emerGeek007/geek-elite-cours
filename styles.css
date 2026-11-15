@@ -101,8 +101,9 @@ body {
     background: rgba(16, 185, 129, 0.15);
 }
 
+html:not(.is-authenticated) .app-shell,
 body:not(.is-authenticated) > :not(.login-screen) {
-    display: none;
+    display: none !important;
 }
 
 .login-screen {
