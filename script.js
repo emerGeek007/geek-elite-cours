@@ -359,11 +359,24 @@ function setupInstallButton() {
     });
 }
 
+let serviceWorkerReady = false;
+
 function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
+    if (!('serviceWorker' in navigator) || serviceWorkerReady) {
         return;
     }
-    navigator.serviceWorker.register('sw.js?v=6').catch(() => {});
+    serviceWorkerReady = true;
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (!event.data || event.data.type !== 'app-updated') {
+            return;
+        }
+        if (sessionStorage.getItem('geekEliteUpdated') === 'v6') {
+            return;
+        }
+        sessionStorage.setItem('geekEliteUpdated', 'v6');
+        window.location.reload();
+    });
+    navigator.serviceWorker.register('sw.js?v=7').catch(() => {});
 }
 
 // Charger la progression depuis localStorage
@@ -459,16 +472,32 @@ function playVideo(video) {
     videoPlayerSection.scrollIntoView({ behavior: 'smooth' });
 }
 
+function courseUrl(url) {
+    const page = new URL(window.location.href);
+    const directory = page.pathname.endsWith('/') ? page.pathname : page.pathname.replace(/[^/]*$/, '');
+    return new URL(url, page.origin + directory).href;
+}
+
+function playInPage(url) {
+    currentVideoElement.src = url;
+    currentVideoElement.load();
+    const playPromise = currentVideoElement.play();
+    if (playPromise && playPromise.catch) {
+        playPromise.catch(function () {});
+    }
+}
+
 function attachVideoSource(url) {
+    const absolute = courseUrl(url);
     if (hlsPlayer) {
         hlsPlayer.destroy();
         hlsPlayer = null;
     }
 
-    const isHls = url.indexOf('.m3u8') !== -1;
+    const isHls = absolute.indexOf('.m3u8') !== -1;
     if (isHls && window.Hls && Hls.isSupported()) {
-        hlsPlayer = new Hls();
-        hlsPlayer.loadSource(url);
+        hlsPlayer = new Hls({ enableWorker: false });
+        hlsPlayer.loadSource(absolute);
         hlsPlayer.attachMedia(currentVideoElement);
         hlsPlayer.on(Hls.Events.MANIFEST_PARSED, function () {
             const playPromise = currentVideoElement.play();
@@ -476,15 +505,18 @@ function attachVideoSource(url) {
                 playPromise.catch(function () {});
             }
         });
+        hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
+            if (!data || !data.fatal) {
+                return;
+            }
+            hlsPlayer.destroy();
+            hlsPlayer = null;
+            playInPage(absolute);
+        });
         return;
     }
 
-    currentVideoElement.src = url;
-    currentVideoElement.load();
-    const playPromise = currentVideoElement.play();
-    if (playPromise && playPromise.catch) {
-        playPromise.catch(function () {});
-    }
+    playInPage(absolute);
 }
 
 // Gérer la fin de la vidéo

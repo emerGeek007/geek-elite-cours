@@ -1,4 +1,4 @@
-const CACHE = 'geek-elite-shell-v5';
+const CACHE = 'geek-elite-shell-v6';
 const SHELL = [
     './',
     './index.html',
@@ -24,14 +24,7 @@ self.addEventListener('activate', (event) => {
             .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
             .then(() => self.clients.claim())
             .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
-            .then((clients) => Promise.all(clients.map((client) => {
-                const next = new URL(client.url);
-                if (next.searchParams.get('acces') === 'nouveau') {
-                    return null;
-                }
-                next.searchParams.set('acces', 'nouveau');
-                return client.navigate(next.toString());
-            })))
+            .then((clients) => Promise.all(clients.map((client) => client.postMessage({ type: 'app-updated' }))))
     );
 });
 
@@ -46,7 +39,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     event.respondWith(
-        fetch(event.request)
+        fetch(event.request, { cache: 'no-store' })
             .then((response) => {
                 if (response.ok) {
                     const copy = response.clone();
