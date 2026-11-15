@@ -40,7 +40,7 @@ const videos = [
         title: "Module 5 - Trading en Direct",
         description: "Analyses de trades réels et sessions live",
         thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop",
-        url: ""
+        url: "media/video6/index.m3u8"
     },
     {
         id: 6,
