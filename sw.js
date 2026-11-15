@@ -1,4 +1,4 @@
-const CACHE = 'geek-elite-shell-v4';
+const CACHE = 'geek-elite-shell-v5';
 const SHELL = [
     './',
     './index.html',

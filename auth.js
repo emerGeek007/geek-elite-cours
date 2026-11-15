@@ -1,17 +1,17 @@
 const GeekAuth = (() => {
     const iterations = 210000;
     const accounts = [
-        { username: 'eleve1', salt: 'fyAMTMiFSwPokNXeHtHydg==', hash: 'CdF6lopdDK+eTbEIPxyUc0p3v8TwhtUqTKXcdM0I38Y=' },
-        { username: 'eleve2', salt: 'IcTM1i8lCfRRDPI4q3xHoQ==', hash: 't38rmih4zJxn6emadK+e4ki7bdYTRg8DyDMBoH7kBmQ=' },
-        { username: 'eleve3', salt: 'MnISIcTyNwlbvT90WXKlKA==', hash: 'ZEACzjSbncLJdaDwZWh97vNX/2HsAPFdF1p1rZsDcL8=' },
-        { username: 'eleve4', salt: 'iZTynBKUaZQ1vVRqdRTwow==', hash: 'zTB95IixwVALy52BdI1HUEBvyAxrgi26SWeuzdbJekQ=' },
-        { username: 'eleve5', salt: 'RSkONxjK/+saIWXWWvCmvA==', hash: 'TvMm+6BrkUp+EC9hAVhnINW4CdiymAwMSGyH+EaGKg0=' },
-        { username: 'eleve6', salt: 'Wgk881RL+xAazbVRkCYhTQ==', hash: 'u+AE18Sc0Kp2dJoR8aH2UbxaObm/EI665oVaE+efhPA=' }
+        { username: 'Blondy', salt: '7FH4KUBdpeTT5RoL9z96oA==', hash: 'D2M9iDGLsoFFJ2k77M0REJ6oanXSbIHJplOypA72J7w=' },
+        { username: 'Tetie', salt: 'zpyu6s/4tKkpGBilNHZ+8Q==', hash: 'TdNZclDhhXvl9q8M3XJOIck97pZHGvtUP9r2SMR0Hlg=' },
+        { username: 'LeProHt', salt: 'LYxm4rxSx5HzOaGrSFJHwg==', hash: 'omqxdrPHPa9ZecRWIcT6twcfU4ud0RhfqqSE6LYoCdY=' },
+        { username: 'Aris Gogo', salt: '6Cao1bLA4DKd6+Z3nn33Mg==', hash: 'PTYC13vwFw5iaR8KCT2KQF0hKdSYiUnWAHPR+D8oSfg=' },
+        { username: 'CEO-TMD', salt: 'bxUXm8PUwQwOhhTcgwjuow==', hash: 'Qu13v+AjlHxUgoEy3pIPRIjTuvNboDC9lGNz8SfHCNs=' },
+        { username: 'CEO-GEEK', salt: 'RnsFb8bMhOtMdtY/4P4Flw==', hash: 'xeTE3eko/sdoJn7cp/nWXCc8Na4yNTY91lfvmy8dxGQ=' }
     ];
 
     function findAccount(username) {
         const name = String(username || '').trim().toLowerCase();
-        return accounts.find((account) => account.username === name) || null;
+        return accounts.find((account) => account.username.toLowerCase() === name) || null;
     }
 
     function sameText(left, right) {
