@@ -47,7 +47,7 @@ const videos = [
         title: "Module 6 - Devenir Trader Rentable",
         description: "Plan d'action et conseils pour réussir dans le trading",
         thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop",
-        url: ""
+        url: "media/video7/index.m3u8"
     }
 ];
 
