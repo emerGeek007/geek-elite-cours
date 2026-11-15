@@ -64,10 +64,145 @@ body {
     font-weight: 600;
 }
 
+.header-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
 .progress-text {
     color: #d1d5db;
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #d1d5db;
+    font-size: 0.85rem;
+}
+
+#logout-btn {
+    border: 1px solid rgba(52, 211, 153, 0.45);
+    background: transparent;
+    color: #34d399;
+    border-radius: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#logout-btn:hover,
+#logout-btn:focus-visible {
+    background: rgba(16, 185, 129, 0.15);
+}
+
+body:not(.is-authenticated) > :not(.login-screen) {
+    display: none;
+}
+
+.login-screen {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem 1rem;
+}
+
+body.is-authenticated .login-screen {
+    display: none;
+}
+
+.login-card {
+    width: min(100%, 26rem);
+    padding: 1.6rem 1.4rem 1.4rem;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 1.1rem;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+    text-align: center;
+}
+
+.login-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 1rem;
+}
+
+.login-card h1 {
+    margin-top: 0.8rem;
+    font-size: 1.45rem;
+    background: linear-gradient(to right, #059669, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-lead {
+    margin: 0.45rem 0 1.1rem;
+    color: #64748b;
+    font-size: 0.92rem;
+}
+
+.login-field {
+    display: block;
+    margin-bottom: 0.8rem;
+    text-align: left;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.login-field input {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.7rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    color: #111827;
+    background: #f8fafc;
+}
+
+.login-field input:focus {
+    outline: 2px solid #10b981;
+    border-color: #10b981;
+    background: #fff;
+}
+
+.login-error {
+    margin: 0 0 0.8rem;
+    color: #b91c1c;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.login-submit {
+    width: 100%;
+    border: none;
+    border-radius: 0.65rem;
+    background: #111827;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.login-submit:hover,
+.login-submit:focus-visible {
+    background: #064e3b;
+}
+
+.login-submit:disabled {
+    opacity: 0.7;
+    cursor: wait;
 }
 
 .install-banner {

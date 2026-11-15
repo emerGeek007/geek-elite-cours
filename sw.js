@@ -1,8 +1,9 @@
-const CACHE = 'geek-elite-shell-v2';
+const CACHE = 'geek-elite-shell-v3';
 const SHELL = [
     './',
     './index.html',
     './styles.css',
+    './auth.js',
     './script.js',
     './vendor/hls.min.js',
     './manifest.webmanifest',

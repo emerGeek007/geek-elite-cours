@@ -13,9 +13,25 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icons/logo-mark.png?v=2">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
+    <section id="login-screen" class="login-screen">
+        <form id="login-form" class="login-card" novalidate>
+            <img class="login-logo" src="icons/logo-mark.png?v=3" alt="Geek Elite Trading">
+            <h1>Geek Elite Trading</h1>
+            <p class="login-lead">Entrez le nom d'utilisateur et le mot de passe remis par votre formateur.</p>
+            <label class="login-field" for="login-username">Nom d'utilisateur
+                <input id="login-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+            </label>
+            <label class="login-field" for="login-password">Mot de passe
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <p id="login-error" class="login-error" role="alert" hidden></p>
+            <button class="login-submit" type="submit">Se connecter</button>
+        </form>
+    </section>
+
     <!-- Header -->
     <header class="header">
         <div class="container header-content">
@@ -26,9 +42,15 @@
                     <p class="subtitle">Geek Elite Trading • Formation Professionnelle en Trading</p>
                 </div>
             </div>
-            <p class="progress-text">
-                Progression: <span id="completed-count">0</span> / <span id="total-count">7</span> modules complétés
-            </p>
+            <div class="header-meta">
+                <p class="progress-text">
+                    Progression: <span id="completed-count">0</span> / <span id="total-count">7</span> modules complétés
+                </p>
+                <div class="header-user">
+                    <span id="current-user"></span>
+                    <button id="logout-btn" type="button">Déconnexion</button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -100,6 +122,7 @@
     </footer>
 
     <script src="vendor/hls.min.js"></script>
-    <script src="script.js?v=5"></script>
+    <script src="auth.js?v=1"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>

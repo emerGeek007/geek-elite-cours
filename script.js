@@ -54,6 +54,10 @@ const videos = [
 // État de l'application
 let unlockedVideos = [0];
 let completedVideos = [];
+let currentUser = null;
+let appReady = false;
+let loginFailures = 0;
+let loginLockedUntil = 0;
 let currentVideo = null;
 let hlsPlayer = null;
 let deferredInstallPrompt = null;
@@ -84,17 +88,134 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const completedCount = document.getElementById('completed-count');
 const totalCount = document.getElementById('total-count');
 
-// Initialisation
-function init() {
+function enterCourse(username) {
+    currentUser = username;
+    document.body.classList.add('is-authenticated');
+    const name = document.getElementById('current-user');
+    if (name) {
+        name.textContent = username;
+    }
     loadProgress();
     renderVideoGrid();
     updateProgressDisplay();
-    setupEventListeners();
-    setupInstallButton();
-    registerServiceWorker();
-    
-    // Afficher le nombre total de vidéos
-    totalCount.textContent = videos.length;
+    if (!appReady) {
+        appReady = true;
+        setupEventListeners();
+        setupInstallButton();
+        registerServiceWorker();
+        totalCount.textContent = videos.length;
+    }
+}
+
+function showLoginError(message) {
+    const error = document.getElementById('login-error');
+    if (!error) {
+        return;
+    }
+    error.textContent = message;
+    error.hidden = !message;
+}
+
+async function createSession(username) {
+    const account = GeekAuth.findAccount(username);
+    const expires = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    const material = new TextEncoder().encode(`${username}.${expires}.${account.hash}`);
+    const digest = await crypto.subtle.digest('SHA-256', material);
+    const check = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('').slice(0, 32);
+    writeStorage('geekEliteSession', JSON.stringify({ username, expires, check }));
+}
+
+async function readSession() {
+    const raw = readStorage('geekEliteSession');
+    if (!raw) {
+        return null;
+    }
+    try {
+        const session = JSON.parse(raw);
+        const account = GeekAuth.findAccount(session.username);
+        if (!account || !session.expires || session.expires < Date.now()) {
+            return null;
+        }
+        const material = new TextEncoder().encode(`${session.username}.${session.expires}.${account.hash}`);
+        const digest = await crypto.subtle.digest('SHA-256', material);
+        const check = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('').slice(0, 32);
+        if (check !== session.check) {
+            return null;
+        }
+        return session;
+    } catch (error) {
+        return null;
+    }
+}
+
+function leaveCourse() {
+    currentUser = null;
+    writeStorage('geekEliteSession', '');
+    try {
+        localStorage.removeItem('geekEliteSession');
+    } catch (error) {
+        // Rien à faire si le stockage est déjà vide.
+    }
+    if (currentVideoElement) {
+        currentVideoElement.pause();
+    }
+    if (videoPlayerSection) {
+        videoPlayerSection.style.display = 'none';
+    }
+    document.body.classList.remove('is-authenticated');
+    const password = document.getElementById('login-password');
+    if (password) {
+        password.value = '';
+    }
+    showLoginError('');
+    const username = document.getElementById('login-username');
+    if (username) {
+        username.focus();
+    }
+}
+
+function setupLogin() {
+    const form = document.getElementById('login-form');
+    const logout = document.getElementById('logout-btn');
+    if (logout) {
+        logout.addEventListener('click', leaveCourse);
+    }
+    if (!form) {
+        return;
+    }
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (Date.now() < loginLockedUntil) {
+            showLoginError('Trop d’essais. Réessayez dans quelques secondes.');
+            return;
+        }
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+        if (!username || !password) {
+            showLoginError('Entrez le nom d’utilisateur et le mot de passe.');
+            return;
+        }
+        const submit = form.querySelector('button[type="submit"]');
+        submit.disabled = true;
+        const accepted = await GeekAuth.verify(username, password);
+        submit.disabled = false;
+        if (!accepted) {
+            loginFailures += 1;
+            if (loginFailures >= 5) {
+                loginFailures = 0;
+                loginLockedUntil = Date.now() + 20000;
+                showLoginError('Trop d’essais. Réessayez dans quelques secondes.');
+                return;
+            }
+            showLoginError('Nom d’utilisateur ou mot de passe incorrect.');
+            return;
+        }
+        loginFailures = 0;
+        document.getElementById('login-password').value = '';
+        showLoginError('');
+        await createSession(accepted);
+        enterCourse(accepted);
+    });
 }
 
 function isAppInstalled() {
@@ -267,18 +388,27 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         return;
     }
-    navigator.serviceWorker.register('sw.js?v=4').catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=5').catch(() => {});
 }
 
 // Charger la progression depuis localStorage
+function progressStorageKey(kind) {
+    return `geekElite:${currentUser}:${kind}`;
+}
+
 function loadProgress() {
-    const savedUnlocked = localStorage.getItem('unlockedVideos');
-    const savedCompleted = localStorage.getItem('completedVideos');
-    
+    unlockedVideos = [0];
+    completedVideos = [];
+    if (!currentUser) {
+        return;
+    }
+    const savedUnlocked = localStorage.getItem(progressStorageKey('unlocked'));
+    const savedCompleted = localStorage.getItem(progressStorageKey('completed'));
+
     if (savedUnlocked) {
         unlockedVideos = JSON.parse(savedUnlocked);
     }
-    
+
     if (savedCompleted) {
         completedVideos = JSON.parse(savedCompleted);
     }
@@ -286,8 +416,11 @@ function loadProgress() {
 
 // Sauvegarder la progression
 function saveProgress() {
-    localStorage.setItem('unlockedVideos', JSON.stringify(unlockedVideos));
-    localStorage.setItem('completedVideos', JSON.stringify(completedVideos));
+    if (!currentUser) {
+        return;
+    }
+    localStorage.setItem(progressStorageKey('unlocked'), JSON.stringify(unlockedVideos));
+    localStorage.setItem(progressStorageKey('completed'), JSON.stringify(completedVideos));
 }
 
 // Mettre à jour l'affichage de la progression
@@ -433,5 +566,10 @@ function setupEventListeners() {
     });
 }
 
-// Lancer l'application au chargement de la page
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', async () => {
+    setupLogin();
+    const session = await readSession();
+    if (session) {
+        enterCourse(session.username);
+    }
+});
