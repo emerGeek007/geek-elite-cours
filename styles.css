@@ -40,7 +40,13 @@ body {
 }
 
 .header-icon {
-    font-size: 2rem;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex-shrink: 0;
+    border-radius: 0.85rem;
+    background: #fff;
+    object-fit: contain;
+    padding: 0.15rem;
 }
 
 .main-title {
@@ -460,7 +466,8 @@ body {
     }
     
     .header-icon {
-        font-size: 1.5rem;
+        width: 2.75rem;
+        height: 2.75rem;
     }
     
     .section-title {
